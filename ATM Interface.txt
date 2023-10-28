@@ -1,0 +1,186 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+class ATM:
+    def __init__(self):
+        self.load_user_data()
+        self.transactions = []
+
+    def load_user_data(self):
+       
+        self.user_id = "afrozsahar04"
+        self.pin = "happy2004"
+        self.balance = 158750
+
+    def save_user_data(self):
+       
+        pass
+
+    def deposit(self, amount):
+        self.balance += amount
+        self.transactions.append(f"Deposited: {amount} Rs")
+        self.save_user_data()
+
+    def withdraw(self, amount):
+        if self.balance >= amount:
+            self.balance -= amount
+            self.transactions.append(f"Withdrew: {amount} Rs")
+            self.save_user_data()
+        else:
+            messagebox.showerror("Error", "Insufficient funds")
+
+    def transfer(self, to_account, amount):
+        if self.balance >= amount:
+            self.balance -= amount
+            self.transactions.append(f"Transferred {amount} Rs to account {to_account}")
+            self.save_user_data()
+        else:
+            messagebox.showerror("Error", "Insufficient funds")
+
+    def history(self):
+        return self.transactions
+
+
+def login(login_window=None):
+    user_id = entry_user.get()
+    pin = entry_pin.get()
+
+    if user_id == atm.user_id and pin == atm.pin:
+        transaction_window()
+        login_window.destroy()
+    else:
+        messagebox.showerror("Error", "Invalid credentials")
+
+
+def transaction_window():
+    transaction_window = tk.Toplevel(window)
+    transaction_window.title("Transaction Menu")
+    transaction_window.geometry("400x300")
+
+    label4 = tk.Label(transaction_window, text="Transactions", font=("Helvetica", 16))
+    label4.pack(pady=10)
+
+    def open_history():
+        history = atm.history()
+        history_text = "\n".join(history)
+        history_window = tk.Toplevel(transaction_window)
+        history_window.title("Transaction History")
+        history_label = tk.Label(history_window, text=history_text, font=("Helvetica", 12))
+        history_label.pack(padx=10, pady=10)
+
+    def open_withdraw():
+        def withdraw_amount():
+            amount = withdraw_entry.get()
+            if amount:
+                atm.withdraw(int(amount))
+                update_balance_label()
+                messagebox.showinfo("Success", f"Withdrawn: {amount} Rs")
+                withdraw_window.destroy()
+
+        withdraw_window = tk.Toplevel(transaction_window)
+        withdraw_window.title("Withdraw")
+        withdraw_window.geometry("300x150")
+
+        withdraw_label = tk.Label(withdraw_window, text="Enter amount to withdraw:")
+        withdraw_label.pack(pady=10)
+        withdraw_entry = tk.Entry(withdraw_window)
+        withdraw_entry.pack(pady=10)
+        withdraw_button = tk.Button(withdraw_window, text="Withdraw", command=withdraw_amount)
+        withdraw_button.pack(pady=10)
+
+    def open_deposit():
+        def deposit_amount():
+            amount = deposit_entry.get()
+            if amount:
+                atm.deposit(int(amount))
+                update_balance_label()
+                messagebox.showinfo("Success", f"Deposited: {amount} Rs")
+                deposit_window.destroy()
+
+        deposit_window = tk.Toplevel(transaction_window)
+        deposit_window.title("Deposit")
+        deposit_window.geometry("300x150")
+
+        deposit_label = tk.Label(deposit_window, text="Enter amount to deposit:")
+        deposit_label.pack(pady=10)
+        deposit_entry = tk.Entry(deposit_window)
+        deposit_entry.pack(pady=10)
+        deposit_button = tk.Button(deposit_window, text="Deposit", command=deposit_amount)
+        deposit_button.pack(pady=10)
+
+    def open_transfer():
+        def transfer_money():
+            to_account = to_account_entry.get()
+            amount = transfer_amount_entry.get()
+            if to_account and amount:
+                atm.transfer(to_account, int(amount))
+                update_balance_label()
+                messagebox.showinfo("Success", f"Transferred {amount} Rs to account {to_account}")
+                transfer_window.destroy()
+
+        transfer_window = tk.Toplevel(transaction_window)
+        transfer_window.title("Transfer")
+        transfer_window.geometry("400x200")
+
+        to_account_label = tk.Label(transfer_window, text="To Account:")
+        to_account_label.pack(pady=10)
+        to_account_entry = tk.Entry(transfer_window)
+        to_account_entry.pack(pady=10)
+
+        transfer_amount_label = tk.Label(transfer_window, text="Amount to Transfer:")
+        transfer_amount_label.pack(pady=10)
+        transfer_amount_entry = tk.Entry(transfer_window)
+        transfer_amount_entry.pack(pady=10)
+
+        transfer_button = tk.Button(transfer_window, text="Transfer", command=transfer_money)
+        transfer_button.pack(pady=10)
+
+    def update_balance_label():
+        balance_label.config(text=f"Balance: {atm.balance} Rs")
+
+    history_button = tk.Button(transaction_window, text="History", command=open_history)
+    history_button.pack(pady=10)
+
+    withdraw_button = tk.Button(transaction_window, text="Withdraw", command=open_withdraw)
+    withdraw_button.pack(pady=10)
+
+    deposit_button = tk.Button(transaction_window, text="Deposit", command=open_deposit)
+    deposit_button.pack(pady=10)
+
+    transfer_button = tk.Button(transaction_window, text="Transfer", command=open_transfer)
+    transfer_button.pack(pady=10)
+
+    balance_label = tk.Label(transaction_window, text=f"Balance: {atm.balance} Rs", font=("Helvetica", 12))
+    balance_label.place(relx=0.85, rely=0.05, anchor="ne")
+
+
+def exit_program():
+    atm.save_user_data()
+    window.destroy()
+
+
+window = tk.Tk()
+window.title("ATM System")
+window.geometry("400x300")
+
+atm = ATM()
+
+label1 = tk.Label(window, text="Welcome to the ATM", font=("Helvetica", 16))
+label1.pack(pady=10)
+
+label2 = tk.Label(window, text="User ID:")
+label2.pack()
+entry_user = tk.Entry(window)
+entry_user.pack()
+
+label3 = tk.Label(window, text="PIN:")
+label3.pack()
+entry_pin = tk.Entry(window, show="*")
+entry_pin.pack()
+
+login_button = tk.Button(window, text="Log In", command=login)
+login_button.pack(pady=10)
+
+window.protocol("WM_DELETE_WINDOW", exit_program)
+
+window.mainloop()
